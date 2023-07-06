@@ -1,0 +1,284 @@
+#pragma version 8
+intcblock 0 1 4
+bytecblock 0x72657365727665 0x6173615f6964 0x62616c616e6365 0x61646d696e 0x 0x636f6e74726163745f61646472 0x746f74616c5f737570706c79
+txn NumAppArgs
+intc_0 // 0
+==
+bnz main_l12
+txna ApplicationArgs 0
+pushbytes 0x4c5c61ba // "create()void"
+==
+bnz main_l11
+txna ApplicationArgs 0
+pushbytes 0x695ca160 // "init(uint64,uint64)void"
+==
+bnz main_l10
+txna ApplicationArgs 0
+pushbytes 0x61dc8176 // "user_opt_in()void"
+==
+bnz main_l9
+txna ApplicationArgs 0
+pushbytes 0x008b772d // "asa_opt_in(asset)void"
+==
+bnz main_l8
+txna ApplicationArgs 0
+pushbytes 0x1ec12bef // "claim_asset(asset)void"
+==
+bnz main_l7
+err
+main_l7:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub claimassetcaster_10
+intc_1 // 1
+return
+main_l8:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub asaoptincaster_9
+intc_1 // 1
+return
+main_l9:
+txn OnCompletion
+intc_1 // OptIn
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub useroptincaster_8
+intc_1 // 1
+return
+main_l10:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub initcaster_7
+intc_1 // 1
+return
+main_l11:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+==
+&&
+assert
+callsub createcaster_6
+intc_1 // 1
+return
+main_l12:
+txn OnCompletion
+pushint 5 // DeleteApplication
+==
+bnz main_l14
+err
+main_l14:
+txn ApplicationID
+intc_0 // 0
+!=
+assert
+callsub delete_5
+intc_1 // 1
+return
+
+// create
+create_0:
+proto 0 0
+bytec_3 // "admin"
+bytec 4 // ""
+app_global_put
+bytec_1 // "asa_id"
+intc_0 // 0
+app_global_put
+bytec 5 // "contract_addr"
+bytec 4 // ""
+app_global_put
+bytec_0 // "reserve"
+intc_0 // 0
+app_global_put
+bytec 6 // "total_supply"
+intc_0 // 0
+app_global_put
+retsub
+
+// init
+init_1:
+proto 2 0
+txn Sender
+global CreatorAddress
+==
+// unauthorized
+assert
+bytec 6 // "total_supply"
+frame_dig -2
+app_global_put
+bytec_0 // "reserve"
+frame_dig -2
+app_global_put
+bytec_1 // "asa_id"
+frame_dig -1
+app_global_put
+bytec_3 // "admin"
+txn Sender
+app_global_put
+bytec 5 // "contract_addr"
+global CurrentApplicationAddress
+app_global_put
+retsub
+
+// user_opt_in
+useroptin_2:
+proto 0 0
+txn Sender
+bytec_2 // "balance"
+intc_0 // 0
+app_local_put
+retsub
+
+// asa_opt_in
+asaoptin_3:
+proto 1 0
+txn Sender
+global CreatorAddress
+==
+// unauthorized
+assert
+itxn_begin
+intc_2 // axfer
+itxn_field TypeEnum
+global CurrentApplicationAddress
+itxn_field AssetReceiver
+frame_dig -1
+txnas Assets
+itxn_field XferAsset
+intc_0 // 0
+itxn_field AssetAmount
+itxn_submit
+retsub
+
+// claim_asset
+claimasset_4:
+proto 1 0
+txn Sender
+bytec_2 // "balance"
+app_local_get
+intc_0 // 0
+==
+assert
+bytec_0 // "reserve"
+app_global_get
+intc_0 // 0
+>
+assert
+itxn_begin
+intc_1 // pay
+itxn_field TypeEnum
+txn Sender
+itxn_field Receiver
+pushint 200000 // 200000
+itxn_field Amount
+itxn_next
+intc_2 // axfer
+itxn_field TypeEnum
+intc_1 // 1
+itxn_field AssetAmount
+bytec_1 // "asa_id"
+app_global_get
+itxn_field XferAsset
+txn Sender
+itxn_field AssetReceiver
+itxn_submit
+txn Sender
+bytec_2 // "balance"
+intc_1 // 1
+app_local_put
+bytec_0 // "reserve"
+bytec_0 // "reserve"
+app_global_get
+intc_1 // 1
+-
+app_global_put
+retsub
+
+// delete
+delete_5:
+proto 0 0
+txn Sender
+global CreatorAddress
+==
+// unauthorized
+assert
+intc_1 // 1
+return
+
+// create_caster
+createcaster_6:
+proto 0 0
+callsub create_0
+retsub
+
+// init_caster
+initcaster_7:
+proto 0 0
+intc_0 // 0
+dup
+txna ApplicationArgs 1
+btoi
+frame_bury 0
+txna ApplicationArgs 2
+btoi
+frame_bury 1
+frame_dig 0
+frame_dig 1
+callsub init_1
+retsub
+
+// user_opt_in_caster
+useroptincaster_8:
+proto 0 0
+callsub useroptin_2
+retsub
+
+// asa_opt_in_caster
+asaoptincaster_9:
+proto 0 0
+intc_0 // 0
+txna ApplicationArgs 1
+intc_0 // 0
+getbyte
+frame_bury 0
+frame_dig 0
+callsub asaoptin_3
+retsub
+
+// claim_asset_caster
+claimassetcaster_10:
+proto 0 0
+intc_0 // 0
+txna ApplicationArgs 1
+intc_0 // 0
+getbyte
+frame_bury 0
+frame_dig 0
+callsub claimasset_4
+retsub
