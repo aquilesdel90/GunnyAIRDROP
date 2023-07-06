@@ -6,7 +6,7 @@ This project has been generated using AlgoKit. See below for default getting sta
 
 ### Initial setup
 
-1. Clone this repository: `git clone {repository_url}`
+1. Clone this repository: `git clone https://github.com/aquilesdel90/GunnyAIRDROP.git`
 2. Install pre-requisites:
    - If you have AlgoKit installed, run `algokit bootstrap poetry` within this folder;
    - or:
@@ -40,7 +40,6 @@ This project makes use of Python to build Algorand smart contracts. The followin
 - [Poetry](https://python-poetry.org/): Python packaging and dependency management.
 - [Black](https://github.com/psf/black): A Python code formatter.
 - [Ruff](https://github.com/charliermarsh/ruff): An extremely fast Python linter.
-
 - [mypy](https://mypy-lang.org/): Static type checker.
 
 It has also been configured to have a productive dev experience out of the box in VS Code, see the [.vscode](./.vscode) folder.
