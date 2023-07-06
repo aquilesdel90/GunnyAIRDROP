@@ -19,10 +19,10 @@ app_client = client.ApplicationClient(
 )
 
 app_client.create()
-app_client.fund(10000000) #adds 10 Algos to the S.C.
+app_client.fund(10000000)  # adds 10 Algos to the S.C.
 
-#return_value = app_client.call(hello, name="").return_value
-#print(return_value)
+# return_value = app_client.call(hello, name="").return_value
+# print(return_value)
 
 print("Contract ID: {}", app_client.app_id)
 print("Contract Addr: {}", app_client.app_addr)

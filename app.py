@@ -31,7 +31,9 @@ class MyStates:
         stack_type=TealType.uint64, descr="Wallet balance", default=Int(0)
     )
 
+
 app = Application("Gunny_drop", state=MyStates())
+
 
 @app.create
 def create() -> Expr:
@@ -119,18 +121,6 @@ def claim_asset(asset: abi.Asset) -> Expr:
         app.state.reserve.set(app.state.reserve.get() - Int(1)),
     )
 
-
-"""
-InnerTxnBuilder.Execute(
-    {
-        TxnField.type_enum: TxnType.AssetTransfer,
-        TxnField.asset_amount: Int(1),
-        TxnField.xfer_asset: app.state.asa_id.get(),
-        TxnField.asset_receiver: Txn.sender(),
-        TxnField.fee: Int(0),
-    }
-),
-"""
 
 @app.delete(bare=True, authorize=Authorize.only(Global.creator_address()))
 def delete() -> Expr:
